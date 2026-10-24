@@ -1,0 +1,71 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        request.auth.token.email in ['christianakobundu09@gmail.com', 'prolordaichristian001@gmail.com'] ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    // Default deny all other paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Products collection: public read, admin write
+    match /products/{productId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(productId) && isAdmin();
+    }
+
+    // Services collection: public read, admin write
+    match /services/{serviceId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(serviceId) && isAdmin();
+    }
+
+    // Gallery collection: public read, admin write
+    match /gallery/{galleryId} {
+      allow read: if true;
+      allow create, update, delete: if isValidId(galleryId) && isAdmin();
+    }
+
+    // Store settings (store info, bio, contact details)
+    match /settings/{settingId} {
+      allow read: if true;
+      allow write: if isValidId(settingId) && isAdmin();
+    }
+
+    // Customer Inquiries: public submission, admin only reads & management
+    match /inquiries/{inquiryId} {
+      allow create: if isValidId(inquiryId) &&
+        request.resource.data.name is string &&
+        request.resource.data.name.size() > 0 &&
+        request.resource.data.name.size() <= 150 &&
+        request.resource.data.email is string &&
+        request.resource.data.email.size() > 0 &&
+        request.resource.data.email.size() <= 200 &&
+        request.resource.data.message is string &&
+        request.resource.data.message.size() > 0 &&
+        request.resource.data.message.size() <= 4000;
+      allow read, update, delete: if isValidId(inquiryId) && isAdmin();
+      allow list: if isAdmin();
+    }
+
+    // Admin profiles: restricted to verified admins
+    match /admins/{adminId} {
+      allow read, write: if isValidId(adminId) && isAdmin();
+    }
+  }
+}

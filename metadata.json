@@ -1,0 +1,6 @@
+{
+  "name": "chrisAkons online store",
+  "description": "Professional e-commerce store and services platform owned by Christian Akobundu in Owerri, Imo State, Nigeria.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,133 @@
+{
+  "entities": {
+    "Product": {
+      "title": "Product",
+      "description": "Store products available for purchase or inquiry",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 10000 },
+        "price": { "type": "number" },
+        "discountedPrice": { "type": "number" },
+        "category": { "type": "string", "maxLength": 100 },
+        "sku": { "type": "string", "maxLength": 100 },
+        "stock": { "type": "number" },
+        "availability": { "type": "string", "enum": ["Available", "Out of Stock", "Pre-order"] },
+        "mainImage": { "type": "string" },
+        "additionalImages": { "type": "array" },
+        "specs": { "type": "string", "maxLength": 5000 },
+        "deliveryInfo": { "type": "string", "maxLength": 2000 },
+        "featured": { "type": "boolean" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "price", "category", "availability"]
+    },
+    "Service": {
+      "title": "Service",
+      "description": "Professional services offered by chrisAkons",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 200 },
+        "shortDesc": { "type": "string", "maxLength": 500 },
+        "detailedDesc": { "type": "string", "maxLength": 5000 },
+        "price": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "maxLength": 100 },
+        "availability": { "type": "string", "maxLength": 100 },
+        "images": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["name", "shortDesc"]
+    },
+    "GalleryItem": {
+      "title": "GalleryItem",
+      "description": "Photos and showcase items for chrisAkons store",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "imageUrl": { "type": "string" },
+        "order": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["imageUrl"]
+    },
+    "Inquiry": {
+      "title": "Inquiry",
+      "description": "Customer contact inquiries sent to store owner",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 150 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "subject": { "type": "string", "maxLength": 200 },
+        "message": { "type": "string", "maxLength": 4000 },
+        "status": { "type": "string", "enum": ["new", "read", "replied"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["name", "email", "message"]
+    },
+    "StoreSettings": {
+      "title": "StoreSettings",
+      "description": "Global store profile, owner bio, and contact information",
+      "type": "object",
+      "properties": {
+        "storeName": { "type": "string", "maxLength": 100 },
+        "ownerName": { "type": "string", "maxLength": 100 },
+        "location": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 50 },
+        "email": { "type": "string", "maxLength": 100 },
+        "whatsapp": { "type": "string", "maxLength": 50 },
+        "facebookUrl": { "type": "string", "maxLength": 300 },
+        "heroTitle": { "type": "string", "maxLength": 200 },
+        "heroSubtitle": { "type": "string", "maxLength": 1000 },
+        "bio": { "type": "string", "maxLength": 5000 },
+        "profileImageUrl": { "type": "string" },
+        "categories": { "type": "array" },
+        "updatedAt": { "type": "string" }
+      }
+    },
+    "AdminUser": {
+      "title": "AdminUser",
+      "description": "Authorized administrator user profile",
+      "type": "object",
+      "properties": {
+        "email": { "type": "string", "maxLength": 200 },
+        "role": { "type": "string", "maxLength": 50 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["email", "role"]
+    }
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": "#/entities/Product",
+      "description": "Store products published by the admin"
+    },
+    "/services/{serviceId}": {
+      "schema": "#/entities/Service",
+      "description": "Services offered by Christian Akobundu"
+    },
+    "/gallery/{galleryId}": {
+      "schema": "#/entities/GalleryItem",
+      "description": "Gallery showcase photos and captions"
+    },
+    "/inquiries/{inquiryId}": {
+      "schema": "#/entities/Inquiry",
+      "description": "Private customer contact inquiries for admin review"
+    },
+    "/settings/{settingsId}": {
+      "schema": "#/entities/StoreSettings",
+      "description": "Store general settings, bio, and contact info"
+    },
+    "/admins/{adminId}": {
+      "schema": "#/entities/AdminUser",
+      "description": "Admin authorization records"
+    }
+  }
+}
