@@ -1,4 +1,5 @@
 import React, { useRef } from 'react';
+import christianImg from "../../public/christian-final.jpg";
 import {
   ShieldCheck,
   MapPin,
@@ -58,7 +59,7 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onNavigate }) => {
           <div className="lg:col-span-5 flex flex-col items-center">
             <div className="relative w-64 h-64 sm:w-72 sm:h-72 rounded-full overflow-hidden border-4 border-amber-400 shadow-2xl bg-gradient-to-br from-[#0a1931] to-[#162e54] group">
               <img
-                src={`${import.meta.env.BASE_URL}christian-final.jpg`}
+                src={christianImg}
                 alt="Christian Akobundu"
                 className="w-full h-full object-cover rounded-full"
               />
