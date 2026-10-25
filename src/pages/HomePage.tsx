@@ -71,4 +71,6 @@ const HomePage: React.FC = () => {
   );
 };
 
+export const ProductCard = () => null;
+export { HomePage };
 export default HomePage;
