@@ -1,405 +1,80 @@
-import React from 'react';
-import {
-  ShoppingBag,
-  Wrench,
-  PhoneCall,
-  ExternalLink,
-  MessageCircle,
-  ArrowRight,
-  ShieldCheck,
-  CheckCircle,
-  Sparkles,
-  MapPin,
-  Camera,
-  Star,
-  Eye,
-  Plus,
-} from 'lucide-react';
-import christianImg from "../../public/IMG-20261024-WA6654.jpg";
-import { useStore } from '../context/StoreContext';
-import { formatNaira, createProductWhatsAppMessage } from '../utils/format';
-
+import React, { useState, useEffect } from 'react';
+import { ShieldCheck, MessageCircle, Phone, BadgeCheck, Truck, ArrowRight, Eye, ShoppingBag, MessageCircle as MessageCircleIcon } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Product } from '../types';
+import { getProducts, getSiteSettings } from '../services/firestoreService';
+import christianImg from '../assets/christian.jpg';
 
-interface HomePageProps {
-  onNavigate: (page: string, params?: any) => void;
-}
+const formatNaira = (price: number) => {
+  return new Intl.NumberFormat('en-NG', { style: 'currency', currency: 'NGN', minimumFractionDigits: 0 }).format(price);
+};
 
-export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
-  const {
-    products,
-    services,
-    settings,
-    isAdmin,
-    addToCart,
-    isDataLoading,
-  } = useStore();
+const HomePage: React.FC = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [settings, setSettings] = useState<any>({
+    bio: "My name is Christian Akobundu, based in Owerri, Imo State, Nigeria. I created chrisAkons online store to provide accessible online platform where customers can explore products, discover services, and connect directly. This platform is designed to make browsing convenient, product discovery simple, and customer communication straightforward. Thank you for visiting. I look forward to connecting with you.",
+    phone: "08109226976",
+    whatsapp: "2348109226976"
+  });
 
-  const featuredProducts = products.filter((p) => p.featured || p.availability === 'Available').slice(0, 8);
-  const displayProducts = featuredProducts.length > 0 ? featuredProducts : products.slice(0, 8);
+  useEffect(() => {
+    const load = async () => {
+      const prods = await getProducts();
+      setProducts(prods);
+      const siteSettings = await getSiteSettings();
+      if (siteSettings) setSettings(siteSettings);
+    };
+    load();
+  }, []);
 
   return (
-    <div className="space-y-16 pb-16">
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-[#0a1931] via-[#0d2142] to-[#0a1931] text-white pt-12 pb-20 sm:pt-20 sm:pb-28 border-b border-amber-400/20">
-        {/* Subtle decorative glow */}
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div className="absolute bottom-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+    <div className="min-h-screen bg-[#F8FAFC]">
+      <section className="bg-[#0B1426] text-white">
+        <div className="max-w-7xl mx-auto px-4 py-12 grid lg:grid-cols-12 gap-8 items-center">
+          <div className="lg:col-span-7">
+            <span className="text-[10px] font-bold tracking-[0.2em] text-amber-400 uppercase">Meet The Owner</span>
+            <h1 className="text-3xl sm:text-4xl font-extrabold leading-[1.1] mt-2">Christian Akobundu — <br/>Owerri, Imo State</h1>
+            <p className="text-[14px] leading-6 text-slate-300/90 mt-5 max-w-[58ch] font-light">{settings.bio}</p>
+            <div className="flex flex-wrap gap-3 mt-7">
+              <Link to="/about" className="bg-amber-400 text-black px-6 py-3 rounded-full text-sm font-bold">Read Owner Profile & Story</Link>
+              <a href={`tel:${settings.phone}`} className="bg-white/10 border border-white/10 text-white px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2"><Phone className="w-4 h-4 text-amber-400" /> Call {settings.phone}</a>
+            </div>
+          </div>
+          <div className="lg:col-span-5 flex justify-center lg:justify-end">
+            <div className="w-[200px] h-[200px] sm:w-[240px] sm:h-[240px] rounded-full overflow-hidden border-[5px] border-amber-400 shadow-2xl bg-slate-800">
+              <img src={christianImg} alt="Christian Akobundu" className="w-full h-full object-cover object-top" />
+            </div>
+          </div>
+        </div>
+      </section>
 
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            {/* Left Column: Headlines & Call to Actions */}
-            <div className="lg:col-span-7 space-y-6 text-center lg:text-left">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-400/10 border border-amber-400/30 text-amber-300 text-xs font-semibold tracking-wide uppercase">
-                <Sparkles className="w-3.5 h-3.5 text-amber-400" />
-                <span>Premier E-Commerce & Services in Owerri</span>
-              </div>
+      <section className="max-w-7xl mx-auto px-4 py-12">
+        <div className="text-center max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Featured Products</h2>
+          <p className="text-sm text-slate-600 mt-3">Christian Akobundu will upload products to the catalogue shortly. You can still reach out directly on WhatsApp to inquire about any items, gadgets, or custom orders!</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-10">
+          {products.slice(0, 8).map((product) => (
+            <ProductCard key={product.id} product={product} onViewDetails={() => window.location.href = `/product/${product.id}`} onAddToCart={() => {}} />
+          ))}
+        </div>
+      </section>
 
-              <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight text-white">
-                Welcome to <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-amber-400 to-[#d4af37]">
-                  {settings.storeName}
-                </span>
-              </h1>
-
-              <p className="text-base sm:text-lg text-slate-300 max-w-2xl mx-auto lg:mx-0 leading-relaxed font-light">
-                {settings.heroSubtitle}
-              </p>
-
-              {/* Action Buttons: Shop Now, Explore Services, Contact Us, Visit Facebook */}
-              <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 sm:gap-4 pt-2">
-                <button
-                  onClick={() => onNavigate('shop')}
-                  className="px-6 py-3.5 rounded-xl bg-gradient-to-r from-amber-400 to-[#d4af37] text-[#0a1931] font-bold text-sm shadow-lg shadow-amber-400/20 hover:scale-[1.02] hover:shadow-amber-400/30 active:scale-95 transition flex items-center gap-2"
-                >
-                  <ShoppingBag className="w-4 h-4" />
-                  <span>Shop Now</span>
-                </button>
-
-                <button
-                  onClick={() => onNavigate('services')}
-                  className="px-6 py-3.5 rounded-xl bg-white/10 text-white font-semibold text-sm border border-white/20 hover:bg-white/15 active:scale-95 transition flex items-center gap-2"
-                >
-                  <Wrench className="w-4 h-4 text-amber-400" />
-                  <span>Explore Services</span>
-                </button>
-
-                <button
-                  onClick={() => onNavigate('contact')}
-                  className="px-5 py-3.5 rounded-xl bg-white/5 text-slate-200 font-medium text-sm hover:bg-white/10 active:scale-95 transition flex items-center gap-2"
-                >
-                  <PhoneCall className="w-4 h-4 text-emerald-400" />
-                  <span>Contact Us</span>
-                </button>
-
-                <a
-                  href={settings.facebookUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-5 py-3.5 rounded-xl bg-blue-600/20 text-blue-300 border border-blue-500/30 font-medium text-sm hover:bg-blue-600/30 active:scale-95 transition flex items-center gap-2"
-                >
-                  <ExternalLink className="w-4 h-4 text-blue-400" />
-                  <span>Visit Facebook</span>
-                </a>
-              </div>
-
-              {/* Quick direct WhatsApp link */}
-              <div className="pt-2 flex items-center justify-center lg:justify-start gap-2 text-xs text-slate-300">
-                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
-                <span>Direct WhatsApp Inquiries:</span>
-                <a
-                  href={settings.whatsappUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-emerald-400 hover:text-emerald-300 font-bold underline flex items-center gap-1"
-                >
-                  <MessageCircle className="w-3.5 h-3.5" />
-                  <span>08109226976</span>
-                </a>
+      <section className="px-4 pb-16">
+        <div className="max-w-7xl mx-auto">
+          <div className="bg-[#0B1426] rounded-[2.5rem] p-6 sm:p-10 grid lg:grid-cols-12 gap-8 items-center border border-slate-800/50">
+            <div className="lg:col-span-7">
+              <span className="text-[10px] font-bold tracking-[0.2em] text-amber-400 uppercase">Meet The Owner</span>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-white mt-3">Christian Akobundu — <br/>Owerri, Imo State</h2>
+              <p className="text-[14px] text-slate-300 leading-6 font-light mt-5">{settings.bio}</p>
+              <div className="flex flex-wrap gap-3 mt-7">
+                <Link to="/about" className="bg-amber-400 text-black px-6 py-3 rounded-full text-sm font-bold">Read Owner Profile & Story</Link>
+                <a href={`tel:${settings.phone}`} className="bg-white/10 border border-white/10 text-white px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2"><Phone className="w-4 h-4 text-amber-400" /> Call {settings.phone}</a>
               </div>
             </div>
-
-            {/* Right Column: Owner Profile Photo & Badge Preview */}
             <div className="lg:col-span-5 flex justify-center">
-              <div className="relative w-full max-w-sm rounded-3xl bg-gradient-to-b from-white/15 to-white/5 p-6 border border-white/15 backdrop-blur-md shadow-2xl">
-                <div className="text-center space-y-4">
-                  {/* Photo area with upload trigger if admin */}
-                  <div className="relative mx-auto w-36 h-36 rounded-full overflow-hidden border-4 border-amber-400 shadow-xl bg-slate-800 flex items-center justify-center group">
-                    <img
-                    
-                                    src={christianImg}
-                      className="w-full h-full object-cover rounded-full"
-                    />
-
-                    {isAdmin && (
-                      <button
-                        onClick={() => onNavigate('admin', { tab: 'settings' })}
-                        className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex flex-col items-center justify-center text-amber-300 text-xs font-medium rounded-full"
-                        title="Upload/Change Profile Photo in Admin"
-                      >
-                        <Camera className="w-5 h-5 mb-1" />
-                        <span>Update Photo</span>
-                      </button>
-                    )}
-                  </div>
-
-                  <div>
-                    <h3 className="text-xl font-bold text-white flex items-center justify-center gap-1.5">
-                      <span>Christian Akobundu</span>
-                      <ShieldCheck className="w-5 h-5 text-amber-400" />
-                    </h3>
-                    <p className="text-xs text-amber-300 font-medium tracking-wide">
-                      Founder & CEO
-                    </p>
-                    <p className="text-xs text-slate-300 flex items-center justify-center gap-1 mt-1">
-                      <MapPin className="w-3.5 h-3.5 text-rose-400" />
-                      <span>{settings.location}</span>
-                    </p>
-                  </div>
-
-                  <p className="text-xs text-slate-300 italic leading-relaxed line-clamp-3 bg-black/20 p-3 rounded-xl border border-white/5">
-                    &ldquo;I created chrisAkons online store to provide an accessible platform where customers can explore products, discover services, and connect directly.&rdquo;
-                  </p>
-
-                  <div className="pt-2 flex items-center justify-between border-t border-white/10 text-xs">
-                    <button
-                      onClick={() => onNavigate('about')}
-                      className="text-amber-400 hover:text-amber-300 font-medium flex items-center gap-1"
-                    >
-                      <span>Read Full Bio</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </button>
-                    <a
-                      href={settings.whatsappUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-emerald-400 hover:text-emerald-300 font-semibold flex items-center gap-1"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Connect</span>
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured Products Section */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-          <div>
-            <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 mb-1">
-              <ShoppingBag className="w-3.5 h-3.5" />
-              <span>Browse Catalog</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0a1931]">
-              Featured Products
-            </h2>
-            <p className="text-sm text-slate-600 mt-1">
-              Genuine items with transparent Naira pricing and direct WhatsApp ordering.
-            </p>
-          </div>
-
-          <button
-            onClick={() => onNavigate('shop')}
-            className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0a1931] hover:text-amber-600 transition self-start sm:self-auto"
-          >
-            <span>View All Products</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-
-        {/* Empty State vs Products Grid (NO invented mock products) */}
-        {products.length === 0 ? (
-          <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-white p-12 text-center max-w-2xl mx-auto shadow-sm">
-            <div className="w-16 h-16 rounded-full bg-amber-50 text-amber-500 mx-auto flex items-center justify-center mb-4">
-              <ShoppingBag className="w-8 h-8" />
-            </div>
-            <h3 className="text-xl font-bold text-[#0a1931] mb-2">
-              No Products Added Yet
-            </h3>
-            <p className="text-sm text-slate-600 max-w-md mx-auto mb-6 leading-relaxed">
-              Christian Akobundu will upload products to the catalogue shortly. You can still reach out directly on WhatsApp to inquire about any items, gadgets, or custom orders!
-            </p>
-            <div className="flex flex-wrap items-center justify-center gap-3">
-              <a
-                href={settings.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-sm shadow-md transition flex items-center gap-2"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Inquire on WhatsApp</span>
-              </a>
-              {isAdmin && (
-                <button
-                  onClick={() => onNavigate('admin', { tab: 'products' })}
-                  className="px-6 py-3 rounded-xl bg-[#0a1931] hover:bg-[#12284c] text-white font-semibold text-sm shadow-md transition flex items-center gap-2"
-                >
-                  <Plus className="w-4 h-4 text-amber-400" />
-                  <span>Add First Product</span>
-                </button>
-              )}
-            </div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {displayProducts.map((product) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                onViewDetails={() => onNavigate('product-detail', { id: product.id })}
-                onAddToCart={() => addToCart(product, 1)}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Services Section Overview */}
-      <section className="bg-slate-100 py-16 border-y border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8">
-            <div>
-              <div className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-amber-600 mb-1">
-                <Wrench className="w-3.5 h-3.5" />
-                <span>Expert Solutions</span>
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-[#0a1931]">
-                Our Services
-              </h2>
-              <p className="text-sm text-slate-600 mt-1">
-                Professional and reliable services delivered with integrity in Imo State.
-              </p>
-            </div>
-
-            <button
-              onClick={() => onNavigate('services')}
-              className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0a1931] hover:text-amber-600 transition self-start sm:self-auto"
-            >
-              <span>Explore All Services</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </div>
-
-          {services.length === 0 ? (
-            <div className="rounded-2xl border-2 border-dashed border-slate-300 bg-white p-10 text-center max-w-xl mx-auto">
-              <Wrench className="w-12 h-12 text-slate-400 mx-auto mb-3" />
-              <h3 className="text-lg font-bold text-slate-800 mb-1">
-                Services Available Upon Request
-              </h3>
-              <p className="text-xs text-slate-500 mb-5">
-                Contact Christian directly on WhatsApp to inquire about technical services, procurement, and repairs.
-              </p>
-              <a
-                href={settings.whatsappUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold"
-              >
-                <MessageCircle className="w-4 h-4" />
-                <span>Contact via WhatsApp</span>
-              </a>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {services.slice(0, 3).map((service) => (
-                <div
-                  key={service.id}
-                  className="bg-white rounded-2xl shadow-sm hover:shadow-md transition border border-slate-200 overflow-hidden flex flex-col justify-between"
-                >
-                  <div className="p-6 space-y-3">
-                    {service.images && service.images[0] && (
-                      <img
-                        src={service.images[0]}
-                        alt={service.name}
-                        className="w-full h-44 object-cover rounded-xl mb-4"
-                      />
-                    )}
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200">
-                        {service.category || 'General Service'}
-                      </span>
-                      {service.price && (
-                        <span className="text-sm font-bold text-[#0a1931]">
-                          {service.price}
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="text-lg font-bold text-[#0a1931]">
-                      {service.name}
-                    </h3>
-                    <p className="text-xs text-slate-600 line-clamp-3 leading-relaxed">
-                      {service.shortDesc}
-                    </p>
-                  </div>
-
-                  <div className="px-6 pb-6 pt-2 border-t border-slate-100 flex items-center justify-between gap-3">
-                    <button
-                      onClick={() => onNavigate('service-detail', { id: service.id })}
-                      className="text-xs font-semibold text-[#0a1931] hover:text-amber-600"
-                    >
-                      Learn More
-                    </button>
-                    <a
-                      href={`https://wa.me/2348109226976?text=${encodeURIComponent(
-                        `Hello Christian, I visited chrisAkons online store and would like to request this service: ${service.name}. Please confirm availability and rates.`
-                      )}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3.5 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition"
-                    >
-                      <MessageCircle className="w-3.5 h-3.5" />
-                      <span>Request Service</span>
-                    </a>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* About The Owner Callout */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="rounded-3xl bg-[#0a1931] text-white p-8 sm:p-12 border border-amber-400/20 shadow-xl relative overflow-hidden">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-4">
-              <span className="text-amber-400 text-xs font-bold uppercase tracking-wider">
-                Meet the Owner
-              </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-white">
-                Christian Akobundu — Owerri, Imo State
-              </h2>
-              <p className="text-sm text-slate-300 leading-relaxed font-light">
-                {settings.bio}
-              </p>
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                <button
-                  onClick={() => onNavigate('about')}
-                  className="px-5 py-2.5 rounded-xl bg-amber-400 text-[#0a1931] text-xs font-bold hover:bg-amber-300 transition"
-                >
-                  Read Owner Profile & Story
-                </button>
-                <a
-                  href={`tel:${settings.phone}`}
-                  className="px-5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold transition flex items-center gap-2"
-                >
-                  <PhoneCall className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Call {settings.phone}</span>
-                </a>
-              </div>
-            </div>
-
-            <div className="lg:col-span-4 flex justify-center">
-              <div className="w-32 h-32 sm:w-40 sm:h-40 rounded-full overflow-hidden border-4 border-amber-400 shadow-xl bg-slate-800">
-                <img
-                  src="/christian-final.jpg"
-                  alt="Christian Akobundu"
-                  className="w-full h-full object-cover rounded-full"
-                />
+              <div className="w-44 h-44 sm:w-52 sm:h-52 rounded-full overflow-hidden border-4 border-amber-400 shadow-xl bg-slate-800">
+                <img src={christianImg} alt="Christian Akobundu - Owner of chrisAkons Store" className="w-full h-full object-cover object-top rounded-full" />
               </div>
             </div>
           </div>
@@ -409,140 +84,32 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   );
 };
 
-interface ProductCardProps {
-  product: Product;
-  onViewDetails: () => void;
-  onAddToCart: () => void;
-}
-
-export const ProductCard: React.FC<ProductCardProps> = ({
-  product,
-  onViewDetails,
-  onAddToCart,
-}) => {
-  const hasDiscount = product.discountedPrice && product.discountedPrice < product.price;
-  const currentPrice = hasDiscount ? product.discountedPrice! : product.price;
-  const discountPercent = hasDiscount
-    ? Math.round(((product.price - product.discountedPrice!) / product.price) * 100)
-    : 0;
-
-  const whatsAppUrl = createProductWhatsAppMessage(
-    product.name,
-    currentPrice,
-    1
-  );
-
+const ProductCard: React.FC<{ product: Product; onViewDetails: () => void; onAddToCart: () => void; }> = ({ product, onViewDetails, onAddToCart }) => {
+  const currentPrice = product.discountPrice && product.discountPrice < product.price ? product.discountPrice : product.price;
+  const hasDiscount = product.discountPrice && product.discountPrice < product.price;
+  const whatsappUrl = `https://wa.me/2348109226976?text=Hi%20Christian,%20I'm%20interested%20in%20${encodeURIComponent(product.name)}`;
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col justify-between group">
-      <div>
-        {/* Image Container with Badges */}
-        <div
-          onClick={onViewDetails}
-          className="relative w-full h-56 bg-slate-100 overflow-hidden cursor-pointer"
-        >
-          {product.mainImage ? (
-            <img
-              src={product.mainImage}
-              alt={product.name}
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-              loading="lazy"
-            />
-          ) : (
-            <div className="w-full h-full flex flex-col items-center justify-center text-slate-400">
-              <ShoppingBag className="w-10 h-10 mb-1 opacity-40" />
-              <span className="text-xs">No image provided</span>
-            </div>
-          )}
-
-          {/* Availability Status Badge */}
-          <div className="absolute top-3 left-3 flex flex-col gap-1">
-            <span
-              className={`text-[11px] font-bold px-2.5 py-1 rounded-full shadow-sm backdrop-blur-md ${
-                product.availability === 'Available'
-                  ? 'bg-emerald-600/90 text-white'
-                  : product.availability === 'Pre-order'
-                  ? 'bg-amber-500/90 text-[#0a1931]'
-                  : 'bg-rose-600/90 text-white'
-              }`}
-            >
-              {product.availability}
-            </span>
-
-            {hasDiscount && (
-              <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-full bg-rose-600 text-white shadow-sm">
-                -{discountPercent}% OFF
-              </span>
-            )}
-          </div>
-
-          {product.featured && (
-            <div className="absolute top-3 right-3 bg-amber-400 text-[#0a1931] p-1 rounded-full shadow-md" title="Featured Product">
-              <Star className="w-3.5 h-3.5 fill-current" />
-            </div>
-          )}
-        </div>
-
-        {/* Content */}
-        <div className="p-4 space-y-2">
-          <div className="text-[11px] font-medium text-amber-700 uppercase tracking-wide">
-            {product.category}
-          </div>
-
-          <h3
-            onClick={onViewDetails}
-            className="font-bold text-base text-slate-900 group-hover:text-amber-700 transition cursor-pointer line-clamp-1"
-          >
-            {product.name}
-          </h3>
-
-          <p className="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-            {product.description}
-          </p>
-
-          {/* Pricing */}
-          <div className="pt-2 flex items-baseline gap-2">
-            <span className="text-lg font-black text-[#0a1931]">
-              {formatNaira(currentPrice)}
-            </span>
-            {hasDiscount && (
-              <span className="text-xs text-slate-400 line-through">
-                {formatNaira(product.price)}
-              </span>
-            )}
-          </div>
+    <div className="bg-white rounded-[1.5rem] border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+      <div className="aspect-square bg-slate-50 p-3">
+        <img src={product.image} alt={product.name} className="w-full h-full object-cover rounded-xl" onClick={onViewDetails} />
+      </div>
+      <div className="p-4 flex flex-col flex-1">
+        <h3 onClick={onViewDetails} className="font-bold text-base text-slate-900 line-clamp-1 cursor-pointer">{product.name}</h3>
+        <p className="text-xs text-slate-500 line-clamp-2 mt-1 flex-1">{product.description}</p>
+        <div className="pt-2 flex items-baseline gap-2">
+          <span className="text-lg font-black text-[#0a1931]">{formatNaira(currentPrice)}</span>
+          {hasDiscount && <span className="text-xs text-slate-400 line-through">{formatNaira(product.price)}</span>}
         </div>
       </div>
-
-      {/* Action Buttons */}
       <div className="p-4 pt-0 space-y-2">
         <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={onViewDetails}
-            className="py-2 px-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center justify-center gap-1 transition"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Details</span>
-          </button>
-
-          <button
-            onClick={onAddToCart}
-            className="py-2 px-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold flex items-center justify-center gap-1 transition"
-          >
-            <ShoppingBag className="w-3.5 h-3.5 text-amber-400" />
-            <span>Add to Cart</span>
-          </button>
+          <button onClick={onViewDetails} className="py-2 px-2.5 rounded-xl border border-slate-300 text-xs font-bold flex items-center justify-center gap-1.5"><Eye className="w-3.5 h-3.5" />Details</button>
+          <button onClick={onAddToCart} className="py-2 px-2.5 rounded-xl bg-slate-900 text-white text-xs font-bold flex items-center justify-center gap-1.5"><ShoppingBag className="w-3.5 h-3.5 text-amber-400" />Add to Cart</button>
         </div>
-
-        <a
-          href={whatsAppUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center justify-center gap-1.5 shadow-sm transition"
-        >
-          <MessageCircle className="w-4 h-4" />
-          <span>Order on WhatsApp</span>
-        </a>
+        <a href={whatsappUrl} target="_blank" rel="noopener noreferrer" className="w-full py-2.5 px-3 rounded-xl bg-emerald-600 text-white text-xs font-bold flex items-center justify-center gap-1.5"><MessageCircleIcon className="w-4 h-4" />Order on WhatsApp</a>
       </div>
     </div>
   );
 };
+
+export default HomePage;
