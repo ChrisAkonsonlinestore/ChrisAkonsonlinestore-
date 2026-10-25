@@ -15,8 +15,10 @@ import {
   Eye,
   Plus,
 } from 'lucide-react';
+import christianImg from "../../public/IMG-20261024-WA6654.jpg";
 import { useStore } from '../context/StoreContext';
 import { formatNaira, createProductWhatsAppMessage } from '../utils/format';
+
 import { Product } from '../types';
 
 interface HomePageProps {
