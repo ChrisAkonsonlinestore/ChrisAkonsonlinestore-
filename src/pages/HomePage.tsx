@@ -126,8 +126,8 @@ export const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
                   {/* Photo area with upload trigger if admin */}
                   <div className="relative mx-auto w-36 h-36 rounded-full overflow-hidden border-4 border-amber-400 shadow-xl bg-slate-800 flex items-center justify-center group">
                     <img
-                      src="/christian-final.jpg"
-                      alt="Christian Akobundu"
+                    
+                                    src={christianImg}
                       className="w-full h-full object-cover rounded-full"
                     />
 
