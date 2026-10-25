@@ -1,5 +1,5 @@
 import React, { useRef } from 'react';
-IMG-20261024-WA6654.jpg
+import christianImg from "../../public/IMG-20261024-WA6654.jpg";
 import {
   ShieldCheck,
   MapPin,
