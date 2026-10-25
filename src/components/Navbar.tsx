@@ -115,7 +115,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             className="flex items-center gap-3 text-left group focus:outline-none"
           >
             <img
-              src="/logo-white.png"
+              src={`${import.meta.env.BASE_URL}logo-white.png`}
               alt="ChrisAkons STORE Logo"
               className="h-10 w-10 rounded-full object-contain bg-white p-1"
             />
